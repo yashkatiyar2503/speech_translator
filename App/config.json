@@ -1,0 +1,16 @@
+{
+    "languages": {
+        "fr": {
+            "name": "French",
+            "voice": "fr-FR-HenriNeural"
+        },
+        "es": {
+            "name": "Spanish",
+            "voice": "es-ES-ElviraNeural"
+        },
+        "hi": {
+            "name": "Hindi",
+            "voice": "hi-IN-MadhurNeural"
+        }
+    }
+}

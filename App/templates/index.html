@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Translator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+    <h1>Speech Translator</h1>
+    <form id="translateForm">
+        <label for="language">Select a language:</label>
+        <select id="language" name="language">
+            {% for code, lang in languages.items() %}
+                <option value="{{ code }}">{{ lang['name'] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Start Translation</button>
+    </form>
+    <p id="status"></p>
+    <p id="originalText"></p>
+    <p id="translatedText"></p>
+</body>
+</html>
