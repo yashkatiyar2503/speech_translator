@@ -38,7 +38,7 @@ This application utilizes Azure AI Speech service to translate speech from one l
 2. **Run the Application:**
    - Execute the main application script:
      ```
-     python app.py
+     python -m App.main
      ```
    - The application will start and be accessible at `http://localhost:5000`.
 
