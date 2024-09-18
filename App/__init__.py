@@ -53,7 +53,10 @@ def create_app():
             speak = speech_synthesizer.speak_text_async(translation).get()
 
             if speak.reason == speech_sdk.ResultReason.SynthesizingAudioCompleted:
-                return jsonify({'text': result.text, 'translation': translation})
+                od = result.text
+                td = translation
+
+                return jsonify({'text': od, 'translation': td})
             else:
                 return jsonify({'error': 'Error synthesizing audio'}), 500
         else:
