@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import json
 import azure.cognitiveservices.speech as speech_sdk
 
-
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
 
@@ -53,10 +52,7 @@ def create_app():
             speak = speech_synthesizer.speak_text_async(translation).get()
 
             if speak.reason == speech_sdk.ResultReason.SynthesizingAudioCompleted:
-                od = result.text
-                td = translation
-
-                return jsonify({'text': od, 'translation': td})
+                return jsonify({'text': result.text, 'translation': translation})
             else:
                 return jsonify({'error': 'Error synthesizing audio'}), 500
         else:
