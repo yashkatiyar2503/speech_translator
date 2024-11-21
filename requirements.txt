@@ -1,12 +1,5 @@
-flask
-python-dotenv
+flask~=3.0.3
+python-dotenv~=1.0.1
 azure-cognitiveservices-speech
 pytest
 pymongo
-Flask-Login
-Flask-Dance
-Flask-PyMongo
-Werkzeug
-crypto
-bcrypt
-authlib

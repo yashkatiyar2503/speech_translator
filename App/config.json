@@ -1,60 +1,16 @@
 {
     "languages": {
-        "as": {
-            "name": "Assamese",
-            "voice": "as-IN-YashicaNeural"
-        },
-        "bn": {
-            "name": "Bangla",
-            "voice": "bn-IN-BashkarNeural"
+        "fr": {
+            "name": "French",
+            "voice": "fr-FR-HenriNeural"
         },
         "es": {
             "name": "Spanish",
             "voice": "es-ES-ElviraNeural"
         },
-        "fr": {
-            "name": "French",
-            "voice": "fr-FR-HenriNeural"
-        },
-        "gu": {
-            "name": "Gujarati",
-            "voice": "gu-IN-DhwaniNeural"
-        },
         "hi": {
             "name": "Hindi",
             "voice": "hi-IN-MadhurNeural"
-        },
-        "kn": {
-            "name": "Kannada",
-            "voice": "kn-IN-GaganNeural"
-        },
-        "ml": {
-            "name": "Malayalam",
-            "voice": "ml-IN-SobhanaNeural"
-        },
-        "mr": {
-            "name": "Marathi",
-            "voice": "mr-IN-ManoharNeural"
-        },
-        "or": {
-            "name": "Odia",
-            "voice": "or-IN-SubhasiniNeural"
-        },
-        "pa": {
-            "name": "Punjabi",
-            "voice": "pa-IN-VaaniNeural"
-        },
-        "ta": {
-            "name": "Tamil",
-            "voice": "ta-IN-PallaviNeural"
-        },
-        "te": {
-            "name": "Telugu",
-            "voice": "te-IN-MohanNeural"
-        },
-        "ur": {
-            "name": "Urdu",
-            "voice": "ur-IN-SalmanNeural"
         }
     }
 }
