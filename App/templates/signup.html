@@ -58,6 +58,13 @@
         .auth-box button:hover {
             background: #3700b3;
         }
+        .auth-box .google-login {
+            margin-top: 15px;
+            background: #db4437;
+        }
+        .auth-box .google-login:hover {
+            background: #a33128;
+        }
         .auth-box p {
             margin-top: 15px;
             font-size: 14px;
@@ -82,6 +89,7 @@
             <input type="password" id="password" name="password" required>
             <button type="submit">Signup</button>
         </form>
+        <button class="google-login" onclick="window.location.href='/login/google';">Signup with Google</button>
         <p>Already have an account? <a href="/login">Login here</a></p>
     </div>
 </body>
