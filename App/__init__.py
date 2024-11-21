@@ -97,8 +97,11 @@ def create_app():
             if user:
                 return render_template('signup.html', error="User already exists. Please choose a different username.")
 
-            # Insert new user
-            cursor.execute("INSERT INTO dbo.users (username, password) VALUES (?, ?)", (username, password))
+            # Hash the password before saving it
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+            # Insert new user with hashed password
+            cursor.execute("INSERT INTO dbo.users (username, password) VALUES (?, ?)", (username, hashed_password))
             conn.commit()
             return redirect('/login')  # Redirect to login after successful signup
 
