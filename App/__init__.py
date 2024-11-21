@@ -5,11 +5,26 @@ import pyodbc
 from flask_bcrypt import Bcrypt
 import azure.cognitiveservices.speech as speech_sdk
 import json
+from authlib.integrations.flask_client import OAuth
+
 
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
     app.secret_key = os.urandom(24)
     bcrypt = Bcrypt(app)
+    oauth = OAuth(app)
+
+    # Google OAuth configuration
+    oauth.register(
+        name='google',
+        client_id=os.getenv('GOOGLE_CLIENT_ID'),
+        client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+        access_token_url='https://oauth2.googleapis.com/token',
+        authorize_url='https://accounts.google.com/o/oauth2/auth',
+        api_base_url='https://www.googleapis.com/oauth2/v2/',
+        client_kwargs={'scope': 'openid email profile'},
+        jwks_uri='https://www.googleapis.com/oauth2/v3/certs'
+    )
 
     # Load environment variables
     load_dotenv()
@@ -27,7 +42,7 @@ def create_app():
     conn = pyodbc.connect(conn_str)
     cursor = conn.cursor()
 
-    # Create users table if it doesn't exist (this can be run once during setup)
+    # Ensure users table exists
     cursor.execute('''
         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
         CREATE TABLE users (
@@ -38,105 +53,89 @@ def create_app():
     ''')
     conn.commit()
 
-    # Load supported languages and voices from configuration file
+    # Load configuration
     with open(os.path.join(os.path.dirname(__file__), 'config.json')) as config_file:
         config = json.load(config_file)
-
     languages = config['languages']
 
-    # Configure translation
+    # Speech and translation configurations
     translation_config = speech_sdk.translation.SpeechTranslationConfig(ai_key, ai_region)
     translation_config.speech_recognition_language = 'en-US'
     for lang_code in languages.keys():
         translation_config.add_target_language(lang_code)
 
-    # Configure speech
     speech_config = speech_sdk.SpeechConfig(ai_key, ai_region)
 
+    # Routes
     @app.route('/')
     @app.route('/home')
     def home():
         if 'username' not in session:
-            return redirect('/login')  # Redirect to login if user is not authenticated
-
-        # Pass the languages dictionary to the template
+            return redirect('/login')
         return render_template('index.html', username=session['username'], languages=languages)
-
-
-    @app.route('/save_chat', methods=['POST'])
-    def save_chat():
-        if 'username' not in session:
-            return jsonify({'error': 'User not logged in'}), 401
-
-        username = session['username']
-        data = request.get_json()
-        original_text = data.get('original_text')
-        translated_text = data.get('translated_text')
-        target_language = data.get('target_language')  # Save target language-specific chats
-
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO chat_history (username, original_text, translated_text, target_language) VALUES (?, ?, ?, ?)",
-            (username, original_text, translated_text, target_language)
-        )
-        conn.commit()
-        return jsonify({'message': 'Chat saved successfully'})
-
 
     @app.route('/signup', methods=['GET', 'POST'])
     def signup():
         if request.method == 'POST':
             username = request.form['username']
             password = request.form['password']
-
-            cursor = conn.cursor()
-            # Check if the username already exists
             cursor.execute("SELECT * FROM dbo.users WHERE username = ?", (username,))
-            user = cursor.fetchone()
-
-            if user:
-                return render_template('signup.html', error="User already exists. Please choose a different username.")
-
-            # Hash the password before saving it
+            if cursor.fetchone():
+                return render_template('signup.html', error="User already exists.")
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-            # Insert new user with hashed password
             cursor.execute("INSERT INTO dbo.users (username, password) VALUES (?, ?)", (username, hashed_password))
             conn.commit()
-            return redirect('/login')  # Redirect to login after successful signup
-
+            return redirect('/login')
         return render_template('signup.html')
-
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
             username = request.form['username']
             password = request.form['password']
-
-            cursor = conn.cursor()
-            # Fetch user by username
             cursor.execute("SELECT * FROM dbo.users WHERE username = ?", (username,))
             user = cursor.fetchone()
-
-            if not user:
-                return render_template('login.html', error="No such user exists.")
-
-            # Validate the password using bcrypt
-            stored_hashed_password = user[2]  # Assuming the `password` column is the third column
-            if bcrypt.check_password_hash(stored_hashed_password, password):
-                session['username'] = username
-                return redirect('/')  # Redirect to the index/home page
-            else:
-                return render_template('login.html', error="Incorrect password.")
-
-        return render_template('login.html')
-
+            if not user or not bcrypt.check_password_hash(user[2], password):
+                return render_template('login.html', error="Invalid credentials.")
+            session['username'] = username
+            return redirect('/')
+        return render_template('login.html', google_login_url=url_for('google_login'))
 
     @app.route('/logout')
     def logout():
         session.clear()
         return redirect('/login')
+
+    @app.route('/login/google')
+    def google_login():
+        redirect_uri = url_for('google_callback', _external=True)
+        return oauth.google.authorize_redirect(redirect_uri)
+
+    @app.route('/login/callback')
+    def google_callback():
+        token = oauth.google.authorize_access_token()
+        user_info = oauth.google.get('userinfo').json()
+        email = user_info['email']
+        cursor.execute("SELECT * FROM dbo.users WHERE username = ?", (email,))
+        if not cursor.fetchone():
+            hashed_password = bcrypt.generate_password_hash(os.urandom(24)).decode('utf-8')
+            cursor.execute("INSERT INTO dbo.users (username, password) VALUES (?, ?)", (email, hashed_password))
+            conn.commit()
+        session['username'] = email
+        return redirect('/')
+
+    @app.route('/save_chat', methods=['POST'])
+    def save_chat():
+        if 'username' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+        username = session['username']
+        data = request.get_json()
+        cursor.execute(
+            "INSERT INTO chat_history (username, original_text, translated_text, target_language) VALUES (?, ?, ?, ?)",
+            (username, data['original_text'], data['translated_text'], data['target_language'])
+        )
+        conn.commit()
+        return jsonify({'message': 'Chat saved successfully'})
 
 
     @app.route('/index')
@@ -175,26 +174,14 @@ def create_app():
 
     @app.route('/clear_chat_history', methods=['POST'])
     def clear_chat_history():
-        # Get the selected language from the form data
-        language = request.form.get('language')
-        
-        if not language:
-            return jsonify({'error': 'No language selected'}), 400
+        if 'username' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
 
-        print(f"Received request to clear chat history for language: {language}")  # Debugging log
-        
-        try:
-            # Delete the chat history for the selected language (Ensure correct SQL query here)
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM chat_history WHERE language = ?", (language,))
-            conn.commit()
-            
-            return jsonify({'message': f'Chat history for {language} cleared successfully'}), 200
-        except Exception as e:
-            print(f"Error while clearing chat history: {e}")  # Debugging log
-            return jsonify({'error': 'Error clearing chat history', 'details': str(e)}), 500
-
-
+        username = session['username']
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM chat_history WHERE username = ?", (username,))
+        conn.commit()
+        return jsonify({'message': 'Chat history cleared successfully'})
 
 
     @app.route('/translate', methods=['POST'])
