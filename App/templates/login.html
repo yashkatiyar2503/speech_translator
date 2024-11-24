@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Speakzy</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #C96868, #FFB5A7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating background elements */
+        .floating {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            opacity: 0.8;
+        }
+        .floating::before {
+            content: '\1F5E3'; /* Speech bubble Unicode */
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .floating.mic::before {
+            content: '\1F3A4'; /* Microphone Unicode */
+        }
+        .floating.wave::before {
+            content: '\1F30A'; /* Wave Unicode */
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Auth Box */
+        .auth-box {
+            width: 400px;
+            padding: 30px 20px;
+            background: #fff;
+            color: #333;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: bounceIn 1s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes bounceIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .auth-box img {
+            width: 322px;
+            height: 306px;
+            margin-bottom: -112px;
+            margin-top: -95px;
+        }
+
+        .auth-box h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #6200ea;
+        }
+
+        .auth-box label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .auth-box input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .auth-box button {
+            width: 100%;
+            padding: 10px;
+            background: #6200ea;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .auth-box button:hover {
+            background: #3700b3;
+        }
+
+        .auth-box .google-login {
+            margin-top: 15px;
+            background: #db4437;
+        }
+
+        .auth-box .google-login:hover {
+            background: #a33128;
+        }
+
+        .auth-box p {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .auth-box a {
+            color: #6200ea;
+            text-decoration: none;
+        }
+
+        .auth-box a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating background elements -->
+    <!-- Added more elements for a denser background -->
+    <div class="floating" style="top: 5%; left: 15%; animation-duration: 8s;"></div>
+    <div class="floating mic" style="top: 10%; left: 70%; animation-duration: 7s;"></div>
+    <div class="floating wave" style="top: 15%; left: 30%; animation-duration: 9s;"></div>
+    <div class="floating" style="top: 20%; left: 50%; animation-duration: 6s;"></div>
+    <div class="floating mic" style="top: 25%; left: 80%; animation-duration: 10s;"></div>
+    <div class="floating wave" style="top: 30%; left: 10%; animation-duration: 11s;"></div>
+    <div class="floating" style="top: 35%; left: 60%; animation-duration: 7s;"></div>
+    <div class="floating mic" style="top: 40%; left: 75%; animation-duration: 8s;"></div>
+    <div class="floating wave" style="top: 45%; left: 40%; animation-duration: 9s;"></div>
+    <div class="floating" style="top: 50%; left: 20%; animation-duration: 12s;"></div>
+    <div class="floating mic" style="top: 55%; left: 70%; animation-duration: 5s;"></div>
+    <div class="floating wave" style="top: 60%; left: 30%; animation-duration: 8s;"></div>
+    <div class="floating" style="top: 65%; left: 90%; animation-duration: 6s;"></div>
+    <div class="floating mic" style="top: 70%; left: 15%; animation-duration: 10s;"></div>
+    <div class="floating wave" style="top: 75%; left: 50%; animation-duration: 7s;"></div>
+
+    <!-- Login Form -->
+    <div class="auth-box">
+        <img src="/static/speakezy.png" alt="Speakzy Logo">
+        <h2>Login</h2>
+        <form action="/login" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="submit">Login</button>
+        </form>
+        <button class="google-login" onclick="window.location.href='/login/google';">Login with Google</button>
+        <p>Don't have an account? <a href="/signup">Signup here</a></p>
+    </div>
+</body>
+</html>

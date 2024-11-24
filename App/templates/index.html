@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech Translator</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Logout button styles */
+        .logout-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background-color: #e53935;
+        }
+        /* Chat containers */
+        .chat-container {
+            display: none; /* Hide by default */
+            padding: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            margin-top: 15px;
+        }
+        /* Button Group */
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .floating {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            animation: float 8s infinite ease-in-out;
+            opacity: 0.8;
+        }
+        .floating::before {
+            content: '\1F5E3'; /* Speech bubble Unicode */
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .floating.mic::before {
+            content: '\1F3A4'; /* Microphone Unicode */
+        }
+        .floating.wave::before {
+            content: '\1F30A'; /* Wave Unicode */
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+<body bgcolor="C96868">
+
+     <!-- Floating background elements -->
+    <!-- Added more elements for a denser background -->
+    <div class="floating" style="top: 5%; left: 15%; animation-duration: 8s;"></div>
+    <div class="floating mic" style="top: 10%; left: 70%; animation-duration: 7s;"></div>
+    <div class="floating wave" style="top: 15%; left: 30%; animation-duration: 9s;"></div>
+    <div class="floating" style="top: 20%; left: 50%; animation-duration: 6s;"></div>
+    <div class="floating mic" style="top: 25%; left: 80%; animation-duration: 10s;"></div>
+    <div class="floating wave" style="top: 30%; left: 10%; animation-duration: 11s;"></div>
+    <div class="floating" style="top: 35%; left: 60%; animation-duration: 7s;"></div>
+    <div class="floating mic" style="top: 40%; left: 75%; animation-duration: 8s;"></div>
+    <div class="floating wave" style="top: 45%; left: 40%; animation-duration: 9s;"></div>
+    <div class="floating" style="top: 50%; left: 20%; animation-duration: 12s;"></div>
+    <div class="floating mic" style="top: 55%; left: 70%; animation-duration: 5s;"></div>
+    <div class="floating wave" style="top: 60%; left: 30%; animation-duration: 8s;"></div>
+    <div class="floating" style="top: 65%; left: 90%; animation-duration: 6s;"></div>
+    <div class="floating mic" style="top: 70%; left: 15%; animation-duration: 10s;"></div>
+    <div class="floating wave" style="top: 75%; left: 50%; animation-duration: 7s;"></div>
+
+    <!-- Logout Button -->
+    <a href="{{ url_for('logout') }}">
+        <button class="logout-btn">Logout</button>
+    </a>
+
+    <!-- Mobile Screen Container -->
+    <div class="mobile-screen">
+        <!-- Header containing title and language selection -->
+        <div class="header">
+            <!-- <h1>Speech Translator</h1> -->
+            <img class="logo" src="/static/speakezy.png" alt="Speakzy Logo" >
+            <form id="translateForm" class="form-inline">
+                <label for="language">Select a language:</label>
+                <select id="language" name="language">
+                    <option value="">-- Choose a Language --</option>
+                    {% for code, lang in languages.items() %}
+                        <option value="{{ code }}">{{ lang['name'] }}</option>
+                    {% endfor %}
+                </select>
+                <div class="button-group">
+                    <button type="submit">Start Translation</button>
+                    <button type="button" id="clearChatButton">Clear Chat</button> <!-- Clear Chat button -->
+                </div>
+            </form>
+        </div>
+
+        <!-- Dynamic Chat Box Container -->
+        <div class="content-container">
+            <div id="languageChats">
+                <!-- Chat boxes will be dynamically added here -->
+            </div>
+            <p id="status"></p>
+        </div>
+    </div>
+</body>
+</html>
