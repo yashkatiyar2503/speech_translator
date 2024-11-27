@@ -121,26 +121,28 @@ $(document).ready(function () {
     // Clear chat history for the selected language when the Clear Chat button is clicked
     $('#clearChatButton').on('click', function () {
         const selectedLanguage = $('#language').val();
-    
+
         if (!selectedLanguage) {
             alert('Please select a language first!');
             return;
         }
-    
-        console.log("Request to clear chat for language:", selectedLanguage); // Check what language is selected
-    
+
+        console.log("Request to clear chat for language:", selectedLanguage); // Debug selected language
+
         const chatId = `chatContainer-${selectedLanguage}`;
-    
+
         $.ajax({
             url: '/clear_chat_history',
             method: 'POST',
-            data: { language: selectedLanguage },  // Ensure data is being sent correctly
+            contentType: 'application/json', // Ensure correct content type for sending JSON
+            data: JSON.stringify({ language: selectedLanguage }), // Send data as JSON
             success: function () {
                 console.log('Chat history cleared for ' + selectedLanguage);
                 $(`#${chatId}`).empty(); // Clear only the selected language's chat container
             },
             error: function (xhr, status, error) {
-                console.error('Failed to clear chat history:', xhr.responseText);  // Debug error response
+                console.error('Failed to clear chat history:', xhr.responseText); // Debug error response
+                alert('Failed to clear chat history. Please try again.');
             }
         });
     });
