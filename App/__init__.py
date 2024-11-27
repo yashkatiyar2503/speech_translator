@@ -178,10 +178,18 @@ def create_app():
             return jsonify({'error': 'User not logged in'}), 401
 
         username = session['username']
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM chat_history WHERE username = ?", (username,))
+        target_language = request.json.get('language')
+
+        if not target_language:
+            return jsonify({'error': 'Target language is required'}), 400
+
+        cursor.execute(
+            "DELETE FROM chat_history WHERE username = ? AND target_language = ?",
+            (username, target_language)
+        )
         conn.commit()
-        return jsonify({'message': 'Chat history cleared successfully'})
+
+        return jsonify({'message': f'Chat history cleared successfully for language {target_language}'})
 
 
     @app.route('/translate', methods=['POST'])
